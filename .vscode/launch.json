@@ -1,0 +1,91 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "DHCP Finder - 主程式",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/main.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "args": [],
+            "justMyCode": true,
+            "stopOnEntry": false
+        },
+        {
+            "name": "DHCP Finder - 測試模組",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/test_modules.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "args": [],
+            "justMyCode": true,
+            "stopOnEntry": false
+        },
+        {
+            "name": "DHCP Scanner - 單獨測試",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/modules/dhcp_scanner.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "args": [],
+            "justMyCode": true,
+            "stopOnEntry": false
+        },
+        {
+            "name": "Network Info - 單獨測試",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/modules/network_info.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "args": [],
+            "justMyCode": true,
+            "stopOnEntry": false
+        },
+        {
+            "name": "Internet Test - 單獨測試",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/modules/internet_test.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "args": [],
+            "justMyCode": true,
+            "stopOnEntry": false
+        },
+        {
+            "name": "DHCP Finder - 除錯模式",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/main.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}",
+                "DEBUG": "1"
+            },
+            "args": [],
+            "justMyCode": false,
+            "stopOnEntry": false,
+            "logToFile": true
+        }
+    ]
+}
