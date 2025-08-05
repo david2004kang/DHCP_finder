@@ -86,6 +86,20 @@
             "justMyCode": false,
             "stopOnEntry": false,
             "logToFile": true
+        },
+        {
+            "name": "API功能測試",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/test_api_features.py",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "args": [],
+            "justMyCode": true,
+            "stopOnEntry": false
         }
     ]
 }
