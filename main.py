@@ -19,7 +19,7 @@ from modules.dhcp_scanner import DHCPScanner
 from modules.network_info import NetworkInfo
 from modules.internet_test import InternetTest
 from modules.api_tester import APITester
-from modules.json_formatter import JSONFormatter, JSONSyntaxHighlighter, JSONValidator
+from modules.json_formatter import JSONFormatter, JSONSyntaxHighlighter
 
 
 class DHCPFinderGUI:
@@ -38,9 +38,7 @@ class DHCPFinderGUI:
         self.api_tester = APITester()
         self.json_formatter = JSONFormatter()
 
-        # 頁面管理
-        self.current_page = "network"  # 預設頁面
-        self.pages = {}
+        # 使用 Notebook 管理頁面，無需手動頁面狀態
 
         self.setup_ui()
 
@@ -61,42 +59,22 @@ class DHCPFinderGUI:
                                font=('Arial', 16, 'bold'))
         title_label.grid(row=0, column=0, pady=(0, 10))
 
-        # 頁面切換按鈕
-        tab_frame = ttk.Frame(main_frame)
-        tab_frame.grid(row=1, column=0, sticky=(tk.W, tk.E), pady=(0, 10))
+        # 使用 Notebook 作為索引標籤
+        self.notebook = ttk.Notebook(main_frame)
+        self.notebook.grid(row=1, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        # 調整權重讓 Notebook 伸展
+        main_frame.rowconfigure(1, weight=1)
 
-        ttk.Button(tab_frame, text="網路診斷", command=lambda: self.switch_page("network"),
-                  width=15).pack(side=tk.LEFT, padx=(0, 5))
-        ttk.Button(tab_frame, text="API測試", command=lambda: self.switch_page("api"),
-                  width=15).pack(side=tk.LEFT, padx=5)
-
-        # 頁面容器
-        self.page_container = ttk.Frame(main_frame)
-        self.page_container.grid(row=2, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
-        self.page_container.columnconfigure(0, weight=1)
-        self.page_container.rowconfigure(0, weight=1)
-
-        # 創建頁面
+        # 建立各索引標籤頁面
         self.create_network_page()
         self.create_api_page()
+        self.create_unicode_page()
 
-        # 顯示預設頁面
-        self.switch_page("network")
-
-    def switch_page(self, page_name):
-        """切換頁面"""
-        # 隱藏所有頁面
-        for page in self.pages.values():
-            page.grid_remove()
-
-        # 顯示指定頁面
-        if page_name in self.pages:
-            self.pages[page_name].grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
-            self.current_page = page_name
+    # Notebook 已處理頁面切換，無需額外方法
 
     def create_network_page(self):
         """創建網路診斷頁面"""
-        network_frame = ttk.Frame(self.page_container)
+        network_frame = ttk.Frame(self.notebook)
         network_frame.columnconfigure(1, weight=1)
         network_frame.rowconfigure(0, weight=1)
 
@@ -147,11 +125,12 @@ class DHCPFinderGUI:
                               relief=tk.SUNKEN, anchor=tk.W)
         status_bar.grid(row=0, column=0, sticky=(tk.W, tk.E))
 
-        self.pages["network"] = network_frame
+        # 將頁面加入 Notebook 索引標籤
+        self.notebook.add(network_frame, text="網路診斷")
 
     def create_api_page(self):
         """創建API測試頁面"""
-        api_frame = ttk.Frame(self.page_container)
+        api_frame = ttk.Frame(self.notebook)
         api_frame.columnconfigure(0, weight=1)
         api_frame.rowconfigure(1, weight=1)
 
@@ -163,8 +142,13 @@ class DHCPFinderGUI:
         # HTTP方法選擇
         ttk.Label(control_frame, text="方法:").grid(row=0, column=0, sticky=tk.W, padx=(0, 5))
         self.method_var = tk.StringVar(value="GET")
-        method_combo = ttk.Combobox(control_frame, textvariable=self.method_var,
-                                   values=["GET", "POST", "PUT", "DELETE"], width=10, state="readonly")
+        method_combo = ttk.Combobox(
+            control_frame,
+            textvariable=self.method_var,
+            values=["GET", "POST", "PUT", "DELETE"],
+            width=10,
+            state="readonly",
+        )
         method_combo.grid(row=0, column=1, sticky=tk.W, padx=(0, 10))
 
         # URL輸入
@@ -178,10 +162,17 @@ class DHCPFinderGUI:
                   width=12).grid(row=0, column=4, padx=(10, 0))
 
         # Headers輸入
-        ttk.Label(control_frame, text="Headers:").grid(row=1, column=0, sticky=(tk.W, tk.N), pady=(10, 0))
+        ttk.Label(control_frame, text="Headers:").grid(
+            row=1, column=0, sticky=(tk.W, tk.N), pady=(10, 0)
+        )
         self.headers_text = tk.Text(control_frame, height=3, width=60)
-        self.headers_text.grid(row=1, column=1, columnspan=3, sticky=(tk.W, tk.E), pady=(10, 0))
-        self.headers_text.insert("1.0", "Content-Type: application/json\nAuthorization: Bearer your-token")
+        self.headers_text.grid(
+            row=1, column=1, columnspan=3, sticky=(tk.W, tk.E), pady=(10, 0)
+        )
+        self.headers_text.insert(
+            "1.0",
+            "Content-Type: application/json\nAuthorization: Bearer your-token",
+        )
 
         # 下方內容面板
         content_frame = ttk.Frame(api_frame)
@@ -198,7 +189,9 @@ class DHCPFinderGUI:
 
         self.request_text = tk.Text(request_frame, wrap=tk.WORD, width=40, height=20,
                                    font=("Consolas", 10))
-        request_scroll = ttk.Scrollbar(request_frame, orient="vertical", command=self.request_text.yview)
+        request_scroll = ttk.Scrollbar(
+            request_frame, orient="vertical", command=self.request_text.yview
+        )
         self.request_text.configure(yscrollcommand=request_scroll.set)
         self.request_text.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         request_scroll.grid(row=0, column=1, sticky=(tk.N, tk.S))
@@ -226,7 +219,8 @@ class DHCPFinderGUI:
         # 初始化JSON語法高亮
         self.json_highlighter = JSONSyntaxHighlighter(self.request_text)
 
-        self.pages["api"] = api_frame
+        # 將頁面加入 Notebook 索引標籤
+        self.notebook.add(api_frame, text="API測試")
 
     def update_status(self, message):
         """更新狀態列"""
@@ -236,6 +230,116 @@ class DHCPFinderGUI:
     def append_result(self, text):
         """添加結果到顯示區域"""
         self.result_text.insert(tk.END, text + "\n")
+        self.result_text.see(tk.END)
+        self.root.update_idletasks()
+
+    def create_unicode_page(self):
+        """建立 Unicode 與中文互轉頁面"""
+        conv_frame = ttk.Frame(self.notebook)
+        conv_frame.columnconfigure(0, weight=1)
+        conv_frame.columnconfigure(1, weight=1)
+        conv_frame.rowconfigure(2, weight=1)
+
+        # 說明
+        desc = (
+            "將包含 \\uXXXX 的文字轉成中文，或將中文轉為 \\uXXXX 轉義序列。\n"
+            "範例: \\u8acb\\u4f9d... → 請依照畫面..."
+        )
+        desc_label = ttk.Label(conv_frame, text=desc, justify=tk.LEFT)
+        desc_label.grid(row=0, column=0, columnspan=2, sticky=tk.W, pady=(0, 6))
+
+        # 按鈕列
+        btn_bar = ttk.Frame(conv_frame)
+        btn_bar.grid(row=1, column=0, columnspan=2, sticky=(tk.W), pady=(0, 6))
+        ttk.Button(
+            btn_bar, text="Unicode → 中文", width=16, command=self.unicode_to_chinese
+        ).pack(side=tk.LEFT, padx=(0, 6))
+        ttk.Button(
+            btn_bar, text="中文 → Unicode", width=16, command=self.chinese_to_unicode
+        ).pack(side=tk.LEFT, padx=(0, 6))
+        ttk.Button(
+            btn_bar, text="清除", width=10, command=self.clear_unicode_fields
+        ).pack(side=tk.LEFT)
+
+        # 左側輸入
+        left = ttk.LabelFrame(conv_frame, text="輸入", padding="6")
+        left.grid(
+            row=2,
+            column=0,
+            sticky=(tk.W, tk.E, tk.N, tk.S),
+            padx=(0, 5),
+        )
+        left.columnconfigure(0, weight=1)
+        left.rowconfigure(0, weight=1)
+        self.unicode_input = scrolledtext.ScrolledText(
+            left, wrap=tk.WORD, width=40, height=18, font=("Consolas", 10)
+        )
+        self.unicode_input.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        # 預填示例
+        sample = (
+            "\\u8acb\\u4f9d\\u7167\\u756b\\u9762\\u63d2\\u5165USB-C"
+            "\\u6cbb\\u51771~3\\uff0c\\u6e2c\\u8a66\\u8cc7\\u6599"
+            "\\u8b80\\u5beb\\u53ca\\u62d4\\u9664\n"
+            "\\u5075\\u6e2c"
+        )
+        self.unicode_input.insert("1.0", sample)
+
+        # 右側輸出
+        right = ttk.LabelFrame(conv_frame, text="輸出", padding="6")
+        right.grid(
+            row=2,
+            column=1,
+            sticky=(tk.W, tk.E, tk.N, tk.S),
+            padx=(5, 0),
+        )
+        right.columnconfigure(0, weight=1)
+        right.rowconfigure(0, weight=1)
+        self.unicode_output = scrolledtext.ScrolledText(
+            right,
+            wrap=tk.WORD,
+            width=40,
+            height=18,
+            font=("Consolas", 10),
+        )
+        self.unicode_output.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+
+        # 將頁面加入 Notebook 索引標籤
+        self.notebook.add(conv_frame, text="編碼轉換")
+
+    def unicode_to_chinese(self):
+        """將包含 \\uXXXX 的字串解碼成中文"""
+        try:
+            src = self.unicode_input.get("1.0", tk.END).strip()
+            if not src:
+                self.update_status("請輸入要轉換的內容")
+                return
+            # 先將 Python 字面值的轉義序列解碼
+            decoded = bytes(src, "utf-8").decode("unicode_escape")
+            self.unicode_output.delete("1.0", tk.END)
+            self.unicode_output.insert("1.0", decoded)
+            self.update_status("已轉為中文顯示")
+        except UnicodeDecodeError as err:
+            messagebox.showerror("轉換錯誤", f"解碼失敗: {err}")
+            self.update_status("轉換失敗")
+
+    def chinese_to_unicode(self):
+        """將中文轉為 \\uXXXX 轉義序列"""
+        src = self.unicode_input.get("1.0", tk.END).strip()
+        if not src:
+            self.update_status("請輸入要轉換的內容")
+            return
+        # 將非 ASCII 字元轉為 \uXXXX
+        encoded = src.encode("unicode_escape").decode("ascii")
+        self.unicode_output.delete("1.0", tk.END)
+        self.unicode_output.insert("1.0", encoded)
+        self.update_status("已轉為 Unicode 轉義")
+
+    def clear_unicode_fields(self):
+        """清除轉換輸入/輸出"""
+        self.unicode_input.delete("1.0", tk.END)
+        self.unicode_output.delete("1.0", tk.END)
+        self.update_status("已清除轉換內容")
+
         self.result_text.see(tk.END)
         self.root.update_idletasks()
 
